@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+</head>
+<body>
+  <h1>Register</h1>
+  <% if (errors) { %>
+    <% errors.forEach((error) => { %>
+      <div><%= error.msg %></div>
+    <% }); %>
+  <% } %>
+  
+  <form action="/register" method="POST">
+    <label for="fullName">Full Name</label>
+    <input id="fullName" name="fullName" placeholder="full name" type="text" />
+    <label for="username">Username</label>
+    <input id="username" name="username" placeholder="username" type="text" />
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" />
+    <button type="submit">Sign Up</button>
+  </form>
+</body>
+</html>
