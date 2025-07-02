@@ -48,13 +48,14 @@ model Folder {
 
   files File[]
 
-
   @@unique([parentId, name])
 }
 
 model File {
-  id       Int    @id @default(autoincrement())
-  name     String
-  parent   Folder @relation(fields: [parentId], references: [id])
-  parentId Int
+  id         Int      @id @default(autoincrement())
+  name       String
+  size       Int
+  uploadTime DateTime @default(now())
+  parent     Folder   @relation(fields: [parentId], references: [id])
+  parentId   Int
 }

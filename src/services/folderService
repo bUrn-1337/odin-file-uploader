@@ -55,9 +55,31 @@ const getFolder = async (name, parentChain, userId) => {
     return folder;
 }
 
+const getRootFolder = async (userId) => {
+    const folder = await prisma.folder.findFirst({
+        where: {
+            userId,
+        },
+        include: {
+            name: true,
+            files: {
+                select: {
+                    name: true,
+                }
+            },
+            children: {
+                select: {
+                    name: true,
+                }
+            },
+        },
+    });
+    return folder;
+}
+
 const updateFolder = async (name, parentChain, userId, newName) => {
     const parentId = await getParentId(parentChain, userId);
-    await prisma.update({
+    await prisma.folder.update({
         where: {
             name,
             parentId,
@@ -68,9 +90,22 @@ const updateFolder = async (name, parentChain, userId, newName) => {
     }); 
 }
 
+const deleteFolder = async (name, parentChain, userId) => {
+    const parentId = await getParentId(parentChain, userId);
+    await prisma.folder.delete({
+        where: {
+            name,
+            parentId
+        }
+    });
+
+}
+
 module.exports = {
     insertFolder,
     getFolder,
     updateFolder,
     deleteFolder,
+    getRootFolder,
+    
 }
