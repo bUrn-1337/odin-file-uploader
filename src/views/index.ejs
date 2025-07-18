@@ -6,13 +6,85 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="/upload/<%=currentPath%>" method="POST">
-        <label for="file">File</label>
+    <form action="<%=currentPath%>" method="POST">
+        <label for="file"> Upload File</label>
         <input type="file" id="file" name="file">
     </form>
-    <form action="/create-folder/<%=currentPath%>" method="POST">
-        <label for="file">File</label>
-        <input type="file" id="file" name="file">
+    <form action="<%=currentPath%>" method="POST">
+        <label for="name">Folder name</label>
+        <input type="text" id="name" name="name">
     </form>
+    <% for child of folder.children {%>
+        <div>
+            <img>
+            <a href="<%=currentPath%>/<%=child.name%>"><%=child.name%></a>
+            <button class="deleteFolderButton" data-path="<%=currentPath%>/<%=child.name%>">delete</button>
+            <button class="updateFolderButton" data-path="<%=currentPath%>/<%=child.name%>">update</button>
+        </div>
+    <% } %>
+    <% for file of folder.files { %>
+        <div>
+            <a href="<%= currentPath %>/<%= file.name %>"><%= file.name %></a>
+            <button class="deleteFileButton" data-path="<%=currentPath%>/<%=child.name%>">Delete</button>
+            <button class="updateFileButton" data-path="<%=currentPath%>/<%=child.name%>">Update</button>
+        </div>
+    <% } %>
+    <script>
+        const deleteFolderButtons = document.querySelectorAll(".deleteFolderButton");
+        const updateFolderButtons = document.querySelectorAll(".updateFolderButton");
+        const deleteFileButtons = document.querySelectorAll(".deleteFileButton");
+        const updateFileButtons = document.querySelectorAll(".updateFileButton");
+
+        deleteFolderButtons.forEach((deleteFolderButton) => {
+            const folderPath = deleteFolderButton.data.path; 
+            deleteFolderButton.addEventListener("click", () => {
+                fetch(folderPath, {
+                    method: "DELETE",
+                })
+                .then((res) => res.json())
+                .then(data => console.log(data))
+                .then(err => console.log(err));
+            });
+        });
+        deleteFileButtons.forEach((deleteFileButton) => {
+            const filePath = deleteFileButton.data.path; 
+            deleteFileButton.addEventListener("click", () => {
+                fetch(filePath, {
+                    method: "DELETE",
+                })
+                .then((res) => res.json())
+                .then(data => console.log(data))
+                .then(err => console.log(err));
+            });
+        });
+
+        updateFolderButtons.forEach((updateFolderButton) => {
+            const folderPath = updateFolderButton.data.path;
+            const newName = prompt("Enter the new name");
+            fetch(folderPath, {
+                method: "PUT",
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    newName,
+                }),
+            })
+        });
+
+        updateFileButtons.forEach((updateFileButton) => {
+            const filePath = updateFileButton.data.path;
+            const newName = prompt("Enter the new name");
+            fetch(filePath, {
+                method: "PUT",
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    newName,
+                }),
+            });
+        });
+    </script>
 </body>
 </html>

@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./prisma"
 }
 
 datasource db {
@@ -55,7 +54,9 @@ model File {
   id         Int      @id @default(autoincrement())
   name       String
   size       Int
+  uuid       String
   uploadTime DateTime @default(now())
   parent     Folder   @relation(fields: [parentId], references: [id])
   parentId   Int
+  @@unique([parentId, name])
 }

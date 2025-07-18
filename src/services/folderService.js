@@ -11,13 +11,15 @@ const getChildId = async (name, parentId) => {
             name,
         }
     })
+    return folder.id;
 }
 
 const getParentId = async (parentChain, userId) => {
-    let parentId = getRootId(userId);
+    let parentId = await getRootId(userId);
     for (let i = 0; i < parentChain.length; i++) {
-        parentId = getChildId(parentChain[i],parentId);
+        parentId = await getChildId(parentChain[i], parentId);
     }
+    return parentId;
 }
 
 const insertFolder = async (name, parentChain, userId) => {
@@ -100,6 +102,7 @@ const deleteFolder = async (name, parentChain, userId) => {
     });
 
 }
+
 
 module.exports = {
     insertFolder,

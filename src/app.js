@@ -1,8 +1,10 @@
 const express = require("express");
-const passport = require("./config/passport");
+const passport = require('passport');
 const path = require("node:path");
+const expressSession = require('express-session');
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
+require("./config/passport");
 
 const app = express();
 app.set("views", path.join(__dirname, "views"));
