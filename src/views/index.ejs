@@ -24,11 +24,13 @@
     <% } %>
     <% for file of folder.files { %>
         <div>
-            <a href="<%= currentPath %>/<%= file.name %>"><%= file.name %></a>
+            <a href="<%= currentPath %>/<%= file.name %>?action=file"><%= file.name %></a>
             <button class="deleteFileButton" data-path="<%=currentPath%>/<%=child.name%>">Delete</button>
             <button class="updateFileButton" data-path="<%=currentPath%>/<%=child.name%>">Update</button>
         </div>
     <% } %>
+    <a href="/upload/file/<%= currentPath %>">Upload File</a>
+    <a href="/upload/folder/<%= currentPath %>">Make Folder</a>
     <script>
         const deleteFolderButtons = document.querySelectorAll(".deleteFolderButton");
         const updateFolderButtons = document.querySelectorAll(".updateFolderButton");
@@ -49,7 +51,7 @@
         deleteFileButtons.forEach((deleteFileButton) => {
             const filePath = deleteFileButton.data.path; 
             deleteFileButton.addEventListener("click", () => {
-                fetch(filePath, {
+                fetch(filePath + "?action=file", {
                     method: "DELETE",
                 })
                 .then((res) => res.json())
@@ -75,7 +77,7 @@
         updateFileButtons.forEach((updateFileButton) => {
             const filePath = updateFileButton.data.path;
             const newName = prompt("Enter the new name");
-            fetch(filePath, {
+            fetch(filePath + "?action=file", {
                 method: "PUT",
                 headers: {
                 'Content-Type': 'application/json',
