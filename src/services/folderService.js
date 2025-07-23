@@ -5,7 +5,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const getChildId = async (name, parentId) => {
-    const folder = await prisma.folder.findUnique({
+    console.log(name, parentId);
+    const folder = await prisma.folder.findFirst({
         where: {
             parentId,
             name,
@@ -15,8 +16,10 @@ const getChildId = async (name, parentId) => {
 }
 
 const getParentId = async (parentChain, userId) => {
+    //if (parentChain.length === 0)   return null;
     let parentId = await getRootId(userId);
-    for (let i = 0; i < parentChain.length; i++) {
+    if (parentChain[1] == "")   return parentId;
+    for (let i = 1; i < parentChain.length; i++) {
         parentId = await getChildId(parentChain[i], parentId);
     }
     return parentId;
@@ -35,13 +38,12 @@ const insertFolder = async (name, parentChain, userId) => {
 
 const getFolder = async (name, parentChain, userId) => {
     const parentId = await getParentId(parentChain, userId);
-    const folder = await prisma.folder.findUnique({
+    const folder = await prisma.folder.findFirst({
         where: {
             name,
             parentId,
         },
         include: {
-            name: true,
             files: {
                 select: {
                     name: true,
@@ -58,46 +60,58 @@ const getFolder = async (name, parentChain, userId) => {
 }
 
 const getRootFolder = async (userId) => {
+    
     const folder = await prisma.folder.findFirst({
         where: {
-            userId,
+            userId: userId,     // Owned by this user
+            parentId: null,     // And has no parent (i.e., is a root)
         },
-        include: {
+        select: {
+            id: true,
             name: true,
             files: {
                 select: {
+                    id: true,
                     name: true,
-                }
+                    // Add other fields you need for files
+                },
             },
             children: {
                 select: {
+                    id: true,
                     name: true,
-                }
+                    // Add other fields you need for children folders
+                },
             },
         },
     });
     return folder;
-}
+};
 
 const updateFolder = async (name, parentChain, userId, newName) => {
     const parentId = await getParentId(parentChain, userId);
+    const id = await getChildId(name, parentId);
     await prisma.folder.update({
         where: {
             name,
             parentId,
+            id,
         },
         data: {
             name: newName,
         }
-    }); 
+    });
 }
 
 const deleteFolder = async (name, parentChain, userId) => {
     const parentId = await getParentId(parentChain, userId);
+    const id = await getChildId(name, parentId);
+    
     await prisma.folder.delete({
         where: {
             name,
-            parentId
+            parentId,
+            id,
         }
     });
 
@@ -110,5 +124,5 @@ module.exports = {
     updateFolder,
     deleteFolder,
     getRootFolder,
-    
+    getParentId,
 }

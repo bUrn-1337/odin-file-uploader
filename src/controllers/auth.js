@@ -1,4 +1,4 @@
-const passport = require('../config/passport');
+const passport = require("passport");
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require("express-validator");
 const alphaErr = "must only contain letters.";
@@ -61,7 +61,7 @@ exports.postLogin = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            console.log("abcd");
+        
             return res.redirect("/login");
         }
         req.logIn(user, (err) => {

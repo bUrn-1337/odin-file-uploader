@@ -1,4 +1,4 @@
-const { getFileUUID, uploadFile, uploadFile, deleteFile, updateFile } = require("../services/fileService");
+const { getFile, uploadFile,  deleteFile, updateFile } = require("../services/fileService");
 const { getFolder } = require("../services/folderService");
 
 const cloudinary = require("../config/cloudinaryConfig");
@@ -19,11 +19,12 @@ const deleteFromCloudinary = async (uuid) => {
 const getFileHandler = async (req, res) => {
     const path = req.path;
     const userId = req.user.id;
-    const parentChain = path.split("/").filter(Boolean);
-    const filename = parentChain.pop();
+    const parentChain = path.split("/");
+    const filename = parentChain.splice(-1, 1)[0];
     const file = await getFile(filename, parentChain, userId);
+    console.log(filename, parentChain);
     const uuid = file.uuid;
-    const url = cloudinary.url(`uploads${uuid}`, {
+    const url = cloudinary.url(`uploads/${uuid}`, {
         secure: true,
         resource_type: "auto",
     });
@@ -34,23 +35,25 @@ const getFileHandler = async (req, res) => {
 }
 
 const postFileHandler = async (req, res) => {
-    const parentPath = req.path;
+    const path = req.path;
     const userId = req.user.id;
-    const parentChain = parentPath.split("/");
-    const isFolder = getFolder(name, parentChain, userId);
-    const isFile = getFile(name, parentChain, userId);
+    const parentChain = path.split("/");
+    const file = req.file;
+    const name = file.originalname;
+    const uuid = file.filename.replace("uploads/", "");
+    const size = file.size;
+    const isFolder = await getFolder(name, parentChain, userId);
+    const isFile = await getFile(name, parentChain, userId);
     if (isFile || isFolder) {
         return res.status(400).json({ error: 'A file or folder with that name already exists here.' });
     }
-    const file = req.file;
-    const name = file.originalname;
-    const uuid = file.filename;
-    const size = file.size;
     try {
-        await uploadFile({ name, size, uuid, }, parentChain, userId);
+        console.log(uuid);
+        await uploadFile( name, size, uuid, parentChain, userId);
         res.sendStatus(200);
     } catch (err) {
         res.sendStatus(500);
+        console.log(err);
     }
 }
 
@@ -73,11 +76,11 @@ const deleteFileHandler = async (req, res) => {
     const userId = req.user.id;
     const parentChain = path.split("/").filter(Boolean);
     const filename = parentChain.pop();
-
     const file = await getFile(filename, parentChain, userId);
     const uuid = file.uuid;
     
     await deleteFromCloudinary(uuid);
+    await deleteFile(filename, parentChain, userId);
     res.send(200);
 }
 

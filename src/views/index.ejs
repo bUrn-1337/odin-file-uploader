@@ -1,92 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-    <form action="<%=currentPath%>" method="POST">
-        <label for="file"> Upload File</label>
+    <form action="<%= currentPath %>?action=file" method="POST" enctype="multipart/form-data">
+        <label for="file">File</label>
         <input type="file" id="file" name="file">
+        <button type="submit">Upload</button>
     </form>
     <form action="<%=currentPath%>" method="POST">
         <label for="name">Folder name</label>
         <input type="text" id="name" name="name">
+        <button type="submit">Create</button>
     </form>
-    <% for child of folder.children {%>
+    <% for (child of folder.children) {%>
         <div>
             <img>
-            <a href="<%=currentPath%>/<%=child.name%>"><%=child.name%></a>
+            <a href="<%=currentPath%>/<%=child.name%>">
+                <%=child.name%>
+            </a>
             <button class="deleteFolderButton" data-path="<%=currentPath%>/<%=child.name%>">delete</button>
             <button class="updateFolderButton" data-path="<%=currentPath%>/<%=child.name%>">update</button>
         </div>
-    <% } %>
-    <% for file of folder.files { %>
-        <div>
-            <a href="<%= currentPath %>/<%= file.name %>?action=file"><%= file.name %></a>
-            <button class="deleteFileButton" data-path="<%=currentPath%>/<%=child.name%>">Delete</button>
-            <button class="updateFileButton" data-path="<%=currentPath%>/<%=child.name%>">Update</button>
-        </div>
-    <% } %>
-    <a href="/upload/file/<%= currentPath %>">Upload File</a>
-    <a href="/upload/folder/<%= currentPath %>">Make Folder</a>
-    <script>
-        const deleteFolderButtons = document.querySelectorAll(".deleteFolderButton");
-        const updateFolderButtons = document.querySelectorAll(".updateFolderButton");
-        const deleteFileButtons = document.querySelectorAll(".deleteFileButton");
-        const updateFileButtons = document.querySelectorAll(".updateFileButton");
+        <% } %>
+            <% for (file of folder.files) { %>
+                <div>
+                    <a href="<%= currentPath %>/<%= file.name %>?action=file">
+                        <%= file.name %>
+                    </a>
+                    <button class="deleteFileButton" data-path="<%=currentPath%>/<%=file.name%>">Delete</button>
+                    <button class="updateFileButton" data-path="<%=currentPath%>/<%=file.name%>">Update</button>
+                </div>
+                <% } %>
 
-        deleteFolderButtons.forEach((deleteFolderButton) => {
-            const folderPath = deleteFolderButton.data.path; 
-            deleteFolderButton.addEventListener("click", () => {
-                fetch(folderPath, {
-                    method: "DELETE",
-                })
-                .then((res) => res.json())
-                .then(data => console.log(data))
-                .then(err => console.log(err));
-            });
-        });
-        deleteFileButtons.forEach((deleteFileButton) => {
-            const filePath = deleteFileButton.data.path; 
-            deleteFileButton.addEventListener("click", () => {
-                fetch(filePath + "?action=file", {
-                    method: "DELETE",
-                })
-                .then((res) => res.json())
-                .then(data => console.log(data))
-                .then(err => console.log(err));
-            });
-        });
+                    <script>
+                        const deleteFolderButtons = document.querySelectorAll(".deleteFolderButton");
+                        const updateFolderButtons = document.querySelectorAll(".updateFolderButton");
+                        const deleteFileButtons = document.querySelectorAll(".deleteFileButton");
+                        const updateFileButtons = document.querySelectorAll(".updateFileButton");
 
-        updateFolderButtons.forEach((updateFolderButton) => {
-            const folderPath = updateFolderButton.data.path;
-            const newName = prompt("Enter the new name");
-            fetch(folderPath, {
-                method: "PUT",
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    newName,
-                }),
-            })
-        });
+                        deleteFolderButtons.forEach((deleteFolderButton) => {
+                            const folderPath = deleteFolderButton.dataset.path;
+                            deleteFolderButton.addEventListener("click", () => {
+                                fetch(folderPath, {
+                                    method: "DELETE",
+                                })
+                                .then((res) => {
+                                        location.reload();
+                                        return res.json();
+                                    })
+                                .then(data => console.log(data))
+                                .then(err => console.log(err));
+                            });
+                        });
+                        deleteFileButtons.forEach((deleteFileButton) => {
+                            const filePath = deleteFileButton.dataset.path;
+                            deleteFileButton.addEventListener("click", () => {
+                                fetch(filePath + "?action=file", {
+                                    method: "DELETE",
+                                })
+                                    .then((res) => {
+                                        location.reload();
+                                        return res.json();
+                                    })
+                                    .then(data => console.log(data))
+                                    .then(err => console.log(err));
+                            });
+                        });
 
-        updateFileButtons.forEach((updateFileButton) => {
-            const filePath = updateFileButton.data.path;
-            const newName = prompt("Enter the new name");
-            fetch(filePath + "?action=file", {
-                method: "PUT",
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    newName,
-                }),
-            });
-        });
-    </script>
+                        updateFolderButtons.forEach((updateFolderButton) => {
+                            const folderPath = updateFolderButton.dataset.path;
+                            updateFolderButton.addEventListener("click", () => {
+                                const newName = prompt("Enter the new name");
+                                fetch(folderPath, {
+                                    method: "PUT",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        newName,
+                                    }),
+                                })
+                                .then(() => {
+                                    location.reload();
+                                })
+                                .then((err) => {
+                                    console.log(err);
+                                });
+                            })
+                        });
+
+                        updateFileButtons.forEach((updateFileButton) => {
+                            const filePath = updateFileButton.dataset.path;
+                            updateFileButton.addEventListener("click", () => {
+                            const newName = prompt("Enter the new name");
+                            fetch(filePath + "?action=file", {
+                                method: "PUT",
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    newName,
+                                }),
+                            })
+                                .then(() => {
+                                    location.reload();
+                                })
+                                .then((err) => {
+                                    console.log(err);
+                                });
+                            });
+                        });
+                    </script>
 </body>
+
 </html>

@@ -8,8 +8,7 @@ const prisma = new PrismaClient();
 passport.use(
     new LocalStrategy({ usernameField: 'username' }, async (username, password, done) => {
         try {
-            const { rows } = await prisma.findUnique({ where: { username } });
-            const user = rows[0];
+            const user = await prisma.user.findUnique({ where: { username } });
             if (!user) return done(null, false, { message: 'User not found' });
 
             const match = await bcrypt.compare(password, user.password);

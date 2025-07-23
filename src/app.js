@@ -9,6 +9,7 @@ require("./config/passport");
 const fileRouter = require("./routes/file");
 const folderRouter = require("./routes/folder");
 const authRouter = require("./routes/auth");
+const uploadRouter = require("./routes/upload");
 
 const app = express();
 app.set("views", path.join(__dirname, "views"));
@@ -42,9 +43,25 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use("/", authRouter);
-app.use("/", folderRouter);
-app.use("/", fileRouter);
+app.use((req, res, next) => {
+    // Ignore favicon requests (browsers automatically look for this)
+    if (req.path === '/favicon.ico') {
+        return res.status(204).end(); // 204 No Content
+    }
+    // Ignore internal Chrome DevTools/Browser requests
+    // You might see others like /json, /json/version, /_next/data/..., etc.
+    // Adjust this regex as you identify more such requests from your browser/extensions
+    if (req.path.startsWith('/com.chrome.devtools.json') ||req.path.includes("chrome.devtools")|| req.path.startsWith('/json')) {
+        console.log(`Ignoring internal browser/devtool request: ${req.path}`);
+        return res.status(204).end(); // No content, just acknowledge and close
+    }
+    next(); // Continue to the next middleware/route
+});
+
+app.use("/upload", uploadRouter);
+app.use(authRouter);
+app.use(folderRouter);
+app.use(fileRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Express app listening on port ${PORT}`));

@@ -20,34 +20,54 @@ model Session {
   expiresAt DateTime
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
+// schema.prisma
 
-  root   Folder?  @relation("UserRootFolder", fields: [rootId], references: [id])
-  rootId Int?     @unique
-  Folder Folder[]
+model User {
+  id           Int     @id @default(autoincrement())
+  username     String  @unique
+  password     String
+  rootFolder   Folder? @relation("UserRootFolder", fields: [rootFolderId], references: [id])
+  rootFolderId Int?    @unique
+
+  folders Folder[] // <-- Name the reverse relation
 }
 
 model Folder {
-  id   Int    @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   name String
 
-  user   User? @relation(fields: [userId], references: [id])
-  userId Int?
+  // Each folder belongs to a specific user.
 
-  // Folder <-> User one-to-one (as user's root folder)
-  userRoot User? @relation("UserRootFolder")
+  // This is a standard foreign key for ownership.
+
+  user User @relation(fields: [userId], references: [id]) // Changed to non-nullable (Int)
+
+  userId Int // Each folder MUST have an owner
+
+  // This is the relation for the User's root folder.
+
+  // This field identifies if THIS folder is THE root folder for a user.
+
+  // It effectively makes the 'rootFolder' property in User point to this specific folder.
+
+  // Only ONE folder per user will have its 'userRoot' relation pointing back to the User's 'rootFolder'.
+
+  userRoot User? @relation("UserRootFolder") // This side of the 1-to-1 relation
 
   // Self-referencing for nested folders
-  parent   Folder?  @relation("FolderToSubfolders", fields: [parentId], references: [id])
-  parentId Int?
+
+  parent Folder? @relation("FolderToSubfolders", fields: [parentId], references: [id], onDelete: Cascade)
+
+  parentId Int? // Null for root folders
+
   children Folder[] @relation("FolderToSubfolders")
 
   files File[]
 
-  @@unique([parentId, name])
+  // A user cannot have two folders with the same name in the same parent
+
+  @@unique([parentId, name, userId]) // Added userId to the unique constraint
 }
 
 model File {
@@ -56,7 +76,8 @@ model File {
   size       Int
   uuid       String
   uploadTime DateTime @default(now())
-  parent     Folder   @relation(fields: [parentId], references: [id])
+  parent     Folder   @relation(fields: [parentId], references: [id], onDelete: Cascade)
   parentId   Int
+
   @@unique([parentId, name])
 }
