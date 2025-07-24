@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <form action="<%= currentPath %>?action=file" method="POST" enctype="multipart/form-data">
+    <form action="<%= currentPath %>?action=file" method="POST" enctype="multipart/form-data" id="fileForm">
         <label for="file">File</label>
         <input type="file" id="file" name="file">
         <button type="submit">Upload</button>
@@ -27,51 +27,51 @@
             <button class="deleteFolderButton" data-path="<%=currentPath%>/<%=child.name%>">delete</button>
             <button class="updateFolderButton" data-path="<%=currentPath%>/<%=child.name%>">update</button>
         </div>
-        <% } %>
-            <% for (file of folder.files) { %>
-                <div>
-                    <a href="<%= currentPath %>/<%= file.name %>?action=file">
-                        <%= file.name %>
-                    </a>
-                    <button class="deleteFileButton" data-path="<%=currentPath%>/<%=file.name%>">Delete</button>
-                    <button class="updateFileButton" data-path="<%=currentPath%>/<%=file.name%>">Update</button>
-                </div>
-                <% } %>
+    <% } %>
+    <% for (file of folder.files) { %>
+        <div>
+            <a href="<%= currentPath %>/<%= file.name %>?action=file">
+                <%= file.name %>
+            </a>
+            <button class="deleteFileButton" data-path="<%=currentPath%>/<%=file.name%>">Delete</button>
+            <button class="updateFileButton" data-path="<%=currentPath%>/<%=file.name%>">Update</button>
+        </div>
+    <% } %>
 
-                    <script>
-                        const deleteFolderButtons = document.querySelectorAll(".deleteFolderButton");
-                        const updateFolderButtons = document.querySelectorAll(".updateFolderButton");
-                        const deleteFileButtons = document.querySelectorAll(".deleteFileButton");
-                        const updateFileButtons = document.querySelectorAll(".updateFileButton");
+    <script>
+        const deleteFolderButtons = document.querySelectorAll(".deleteFolderButton");
+        const updateFolderButtons = document.querySelectorAll(".updateFolderButton");
+        const deleteFileButtons = document.querySelectorAll(".deleteFileButton");
+        const updateFileButtons = document.querySelectorAll(".updateFileButton");
 
-                        deleteFolderButtons.forEach((deleteFolderButton) => {
-                            const folderPath = deleteFolderButton.dataset.path;
-                            deleteFolderButton.addEventListener("click", () => {
-                                fetch(folderPath, {
-                                    method: "DELETE",
-                                })
-                                .then((res) => {
-                                        location.reload();
-                                        return res.json();
-                                    })
-                                .then(data => console.log(data))
-                                .then(err => console.log(err));
-                            });
-                        });
-                        deleteFileButtons.forEach((deleteFileButton) => {
-                            const filePath = deleteFileButton.dataset.path;
-                            deleteFileButton.addEventListener("click", () => {
-                                fetch(filePath + "?action=file", {
-                                    method: "DELETE",
-                                })
-                                    .then((res) => {
-                                        location.reload();
-                                        return res.json();
-                                    })
-                                    .then(data => console.log(data))
-                                    .then(err => console.log(err));
-                            });
-                        });
+        deleteFolderButtons.forEach((deleteFolderButton) => {
+            const folderPath = deleteFolderButton.dataset.path;
+            deleteFolderButton.addEventListener("click", () => {
+                fetch(folderPath, {
+                    method: "DELETE",
+                })
+                .then((res) => {
+                        location.reload();
+                        return res.json();
+                    })
+                .then(data => console.log(data))
+                .then(err => console.log(err));
+            });
+        });
+        deleteFileButtons.forEach((deleteFileButton) => {
+            const filePath = deleteFileButton.dataset.path;
+            deleteFileButton.addEventListener("click", () => {
+                fetch(filePath + "?action=file", {
+                    method: "DELETE",
+                })
+                    .then((res) => {
+                        location.reload();
+                        return res.json();
+                    })
+                    .then(data => console.log(data))
+                    .then(err => console.log(err));
+            });
+        });
 
                         updateFolderButtons.forEach((updateFolderButton) => {
                             const folderPath = updateFolderButton.dataset.path;
@@ -80,7 +80,7 @@
                                 fetch(folderPath, {
                                     method: "PUT",
                                     headers: {
-                                        'Content-Type': 'application/json',
+                                        "Content-Type": "application/json",
                                     },
                                     body: JSON.stringify({
                                         newName,
@@ -102,7 +102,7 @@
                             fetch(filePath + "?action=file", {
                                 method: "PUT",
                                 headers: {
-                                    'Content-Type': 'application/json',
+                                    "Content-Type": "application/json",
                                 },
                                 body: JSON.stringify({
                                     newName,
@@ -116,7 +116,7 @@
                                 });
                             });
                         });
-                    </script>
+    </script>
 </body>
 
 </html>

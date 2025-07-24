@@ -29,7 +29,7 @@ model User {
   rootFolder   Folder? @relation("UserRootFolder", fields: [rootFolderId], references: [id])
   rootFolderId Int?    @unique
 
-  folders Folder[] // <-- Name the reverse relation
+  folders Folder[] 
 }
 
 model Folder {
@@ -37,25 +37,9 @@ model Folder {
 
   name String
 
-  // Each folder belongs to a specific user.
-
-  // This is a standard foreign key for ownership.
-
-  user User @relation(fields: [userId], references: [id]) // Changed to non-nullable (Int)
-
-  userId Int // Each folder MUST have an owner
-
-  // This is the relation for the User's root folder.
-
-  // This field identifies if THIS folder is THE root folder for a user.
-
-  // It effectively makes the 'rootFolder' property in User point to this specific folder.
-
-  // Only ONE folder per user will have its 'userRoot' relation pointing back to the User's 'rootFolder'.
-
-  userRoot User? @relation("UserRootFolder") // This side of the 1-to-1 relation
-
-  // Self-referencing for nested folders
+  user User @relation(fields: [userId], references: [id]) 
+  userId Int 
+  userRoot User? @relation("UserRootFolder") 
 
   parent Folder? @relation("FolderToSubfolders", fields: [parentId], references: [id], onDelete: Cascade)
 
@@ -67,7 +51,7 @@ model Folder {
 
   // A user cannot have two folders with the same name in the same parent
 
-  @@unique([parentId, name, userId]) // Added userId to the unique constraint
+  @@unique([parentId, name, userId]) 
 }
 
 model File {
@@ -75,6 +59,7 @@ model File {
   name       String
   size       Int
   uuid       String
+  url        String?
   uploadTime DateTime @default(now())
   parent     Folder   @relation(fields: [parentId], references: [id], onDelete: Cascade)
   parentId   Int

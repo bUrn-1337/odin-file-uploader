@@ -4,14 +4,15 @@ const prisma = new PrismaClient();
 
 const { getParentId } = require("./folderService");
 
-const uploadFile = async (name, size, uuid, parentChain, userId) => {
+const uploadFile = async (url, name, size, uuid, parentChain, userId) => {
     const parentId = await getParentId(parentChain, userId);
     await prisma.file.create({
         data: {
             name,
             size,
             uuid,
-            parentId
+            parentId,
+            url,
         }
     });
 }
@@ -20,7 +21,7 @@ const getFile = async (name, parentChain, userId) => {
     const parentId = await getParentId(parentChain, userId);
     if (parentId === null) {
         console.log(`getFile: Parent folder for file '${name}' in the requested path not found or user has no root.`);
-        return null; // Return null early, as the file cannot be found in a non-existent path
+        return null; 
     }
     const file = await prisma.file.findFirst({
         where: {
@@ -28,25 +29,28 @@ const getFile = async (name, parentChain, userId) => {
             parentId,
         },
         select: {
+            id: true,
             name: true,
             size: true,
             uuid: true,
             uploadTime: true,
-
+            url: true,
         }
     });
     return file;
 }
 
 const updateFile = async (name, newName, parentChain, userId) => {
-    const parentId = await getParentId(parentChain, userId);
+    const parentId  = await getParentId(parentChain, userId);
+    const file = await getFile(name, parentChain, userId);
     await prisma.file.update({
         where: {
-            name,
-            parentId
+            parentId: parentId,
+            name: name,
+            id: file.id,
         },
         data: {
-            newName,
+            name: newName,
         }
     })
 }
@@ -55,8 +59,10 @@ const deleteFile = async (name, parentChain, userId) => {
     const parentId = await getParentId(parentChain, userId);
     await prisma.file.delete({
         where: {
-            name,
-            parentId,
+            parentId_name: {
+                parentId: parentId,
+                name: name,
+            },
         }
     })
 }

@@ -5,6 +5,7 @@ const createFolderHandler = async (req, res, next) => {
     if (action === "file") {
         return next();
     }
+
     const path = req.path;
     const { name } = req.body;
     const userId = req.user.id;
@@ -29,7 +30,6 @@ const getFolderHandler = async (req, res, next) => {
     if (path == "/") {
         const folder = await getRootFolder(userId);
         if (!folder) return res.sendStatus(404);
-        console.log(folder);
         return res.render("index", {
             currentPath: "",
             folder,

@@ -5,7 +5,6 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const getChildId = async (name, parentId) => {
-    console.log(name, parentId);
     const folder = await prisma.folder.findFirst({
         where: {
             parentId,
@@ -16,7 +15,6 @@ const getChildId = async (name, parentId) => {
 }
 
 const getParentId = async (parentChain, userId) => {
-    //if (parentChain.length === 0)   return null;
     let parentId = await getRootId(userId);
     if (parentChain[1] == "")   return parentId;
     for (let i = 1; i < parentChain.length; i++) {
@@ -63,8 +61,8 @@ const getRootFolder = async (userId) => {
     
     const folder = await prisma.folder.findFirst({
         where: {
-            userId: userId,     // Owned by this user
-            parentId: null,     // And has no parent (i.e., is a root)
+            userId: userId,     
+            parentId: null,
         },
         select: {
             id: true,
@@ -73,14 +71,12 @@ const getRootFolder = async (userId) => {
                 select: {
                     id: true,
                     name: true,
-                    // Add other fields you need for files
                 },
             },
             children: {
                 select: {
                     id: true,
                     name: true,
-                    // Add other fields you need for children folders
                 },
             },
         },

@@ -5,6 +5,8 @@ const expressSession = require('express-session');
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
 require("./config/passport");
+const prisma = new PrismaClient();
+
 
 const fileRouter = require("./routes/file");
 const folderRouter = require("./routes/folder");
@@ -44,18 +46,14 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    // Ignore favicon requests (browsers automatically look for this)
     if (req.path === '/favicon.ico') {
-        return res.status(204).end(); // 204 No Content
+        return res.status(204).end(); 
     }
-    // Ignore internal Chrome DevTools/Browser requests
-    // You might see others like /json, /json/version, /_next/data/..., etc.
-    // Adjust this regex as you identify more such requests from your browser/extensions
-    if (req.path.startsWith('/com.chrome.devtools.json') ||req.path.includes("chrome.devtools")|| req.path.startsWith('/json')) {
+    if (req.path.startsWith('/com.chrome.devtools.json') || req.path.includes("chrome.devtools") || req.path.startsWith('/json')) {
         console.log(`Ignoring internal browser/devtool request: ${req.path}`);
-        return res.status(204).end(); // No content, just acknowledge and close
+        return res.status(204).end(); 
     }
-    next(); // Continue to the next middleware/route
+    next();
 });
 
 app.use("/upload", uploadRouter);
